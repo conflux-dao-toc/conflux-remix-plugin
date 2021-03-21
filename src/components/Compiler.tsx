@@ -6,9 +6,11 @@ import type { Api } from '@remixproject/plugin-utils';
 import { Client } from '@remixproject/plugin';
 import { IRemixApi } from '@remixproject/plugin-api';
 import { createClient } from '@remixproject/plugin-iframe';
-import { Celo } from '@dexfair/celo-web-signer';
+import { Conflux } from 'js-conflux-sdk';
 import { InterfaceContract } from './Types';
 import Method from './Method';
+
+const confluxPortal: any = (window as { [key: string]: any }).conflux;
 
 function getFunctions(abi: AbiItem[]): AbiItem[] {
 	const temp: AbiItem[] = [];
@@ -31,7 +33,7 @@ function getArguments(abi: AbiItem | null, args: { [key: string]: string }) {
 }
 
 interface InterfaceProps {
-	celo: Celo;
+	conflux: Conflux;
 	network: string;
 	gtag: (name: string) => void;
 	busy: boolean;
@@ -42,7 +44,7 @@ interface InterfaceProps {
 }
 
 const Compiler: React.FunctionComponent<InterfaceProps> = ({
-	celo,
+	conflux,
 	network,
 	gtag,
 	busy,
@@ -125,24 +127,21 @@ const Compiler: React.FunctionComponent<InterfaceProps> = ({
 	}
 
 	async function onDeploy() {
-		if (!busy && celo.isConnected) {
+		if (!busy) {
 			gtag('deploy');
 			setBusy(true);
 			setAddress('');
 			try {
-				const newContract = new celo.kit.web3.eth.Contract(
-					JSON.parse(JSON.stringify(contracts.data[contractName].abi))
-				);
-				const accounts = await celo.getAccounts();
+				const newContract = conflux.Contract({
+						abi: contracts.data[contractName].abi,
+						bytecode: contracts.data[contractName].evm.bytecode,
+					});
+				const accounts = await confluxPortal.enable();
 				const parms: string[] = getArguments(constructor, args);
-				const rawTx = {
-					from: accounts[0],
-					data: newContract
-						.deploy({ data: `0x${contracts.data[contractName].evm.bytecode.object}`, arguments: parms })
-						.encodeABI(),
-				};
-				// console.log(rawTx)
-				const txReceipt = await celo.sendTransaction(rawTx);
+				const txReceipt = await newContract
+				    .constructor(parms)
+					.sendTransaction({ from: accounts[0] })
+					.executed();
 				// console.log(txReceipt);
 				if (txReceipt.contractAddress) {
 					setAddress(txReceipt.contractAddress);
@@ -240,7 +239,7 @@ const Compiler: React.FunctionComponent<InterfaceProps> = ({
 								variant="warning"
 								block
 								size="sm"
-								disabled={busy || !(celo && celo.isConnected) || fileName === ''}
+								disabled={busy || !conflux || fileName === ''}
 								onClick={onDeploy}
 							>
 								<small>Deploy</small>

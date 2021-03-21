@@ -1,9 +1,8 @@
 {
-  "name": "@Conflux-DAO-TOC/conflux-remix-plugin",
+  "name": "@conflux-dao-toc/conflux-remix-plugin",
   "version": "0.2.0",
   "private": true,
   "dependencies": {
-    "@dexfair/celo-web-signer": "^0.5.5",
     "@remixproject/plugin": "^0.3.7",
     "@remixproject/plugin-api": "^0.3.7",
     "@remixproject/plugin-iframe": "^0.3.7",
@@ -16,6 +15,7 @@
     "@types/react-dom": "^16.9.8",
     "bootstrap": "^4.6.0",
     "copy-to-clipboard": "^3.3.1",
+    "js-conflux-sdk": "^1.5.14",
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.3",
     "react-dom": "^17.0.1",

@@ -3,15 +3,17 @@ import { Alert, Accordion, Button, Card, Form, InputGroup } from 'react-bootstra
 import copy from 'copy-to-clipboard';
 import { CSSTransition } from 'react-transition-group';
 import { AbiInput, AbiItem } from 'web3-utils';
-import { Celo } from '@dexfair/celo-web-signer';
+import { Conflux } from 'js-conflux-sdk';
 import { InterfaceContract } from './Types';
 import Method from './Method';
 import './animation.css';
 
 const EMPTYLIST = 'Currently you have no contract instances to interact with.';
 
+const confluxPortal: any = (window as { [key: string]: any }).conflux;
+
 interface InterfaceDrawMethodProps {
-	celo: Celo;
+	conflux: Conflux;
 	busy: boolean;
 	setBusy: (state: boolean) => void;
 	abi: AbiItem;
@@ -24,7 +26,7 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 	const [success, setSuccess] = React.useState<string>('');
 	const [value, setValue] = React.useState<string>('');
 	const [args, setArgs] = React.useState<{ [key: string]: string }>({});
-	const { celo, busy, /* setBusy, */ abi, address, updateBalance } = props;
+	const { conflux, busy, /* setBusy, */ abi, address, updateBalance } = props;
 
 	React.useEffect(() => {
 		const temp: { [key: string]: string } = {};
@@ -69,20 +71,22 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 						variant={buttonVariant(abi.stateMutability)}
 						block
 						size="sm"
-						disabled={busy || !(celo && celo.isConnected)}
+						disabled={busy || !conflux}
 						onClick={async () => {
 							// setBusy(true)
 							const parms: string[] = [];
 							abi.inputs?.forEach((item: AbiInput) => {
 								parms.push(args[item.name]);
 							});
-							const newContract = new celo.kit.web3.eth.Contract(JSON.parse(JSON.stringify([abi])), address);
-							const accounts = await celo.getAccounts();
+							const newContract = conflux.Contract({
+								abi: [abi],
+								address,
+							});
+							const accounts = await confluxPortal.enable();
 							if (abi.stateMutability === 'view' || abi.stateMutability === 'pure') {
 								try {
-									const txReceipt = abi.name
-										? await newContract.methods[abi.name](...parms).call({ from: accounts[0] })
-										: null;
+									// ? await newContract.methods[abi.name](...parms).call({ from: accounts[0] })
+									const txReceipt = abi.name ? null : null;
 									if (typeof txReceipt === 'object') {
 										setSuccess(JSON.stringify(txReceipt, null, 4));
 									} else {
@@ -96,10 +100,11 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 							} else {
 								try {
 									const txReceipt = abi.name
-										? await celo.sendTransaction({
+										? await conflux.sendTransaction({
 												from: accounts[0],
 												to: address,
-												data: newContract.methods[abi.name](...parms).encodeABI(),
+												data: '0x',
+												// data: newContract.methods[abi.name](...parms).encodeABI(),
 										  })
 										: null;
 									// console.log(txReceipt)
@@ -130,8 +135,9 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 											parms.push(args[item.name]);
 										}
 									});
-									const newContract = new celo.kit.web3.eth.Contract(JSON.parse(JSON.stringify([abi])), address);
-									copy(newContract.methods[abi.name](...parms).encodeABI());
+									const newContract = conflux.Contract({ abi: [abi], address });
+									copy('0x');
+									// copy(newContract.methods[abi.name](...parms).encodeABI());
 								} catch (e) {
 									console.log(e.toString());
 								}
@@ -153,14 +159,14 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 };
 
 const ContractCard: React.FunctionComponent<{
-	celo: Celo;
+	conflux: Conflux;
 	busy: boolean;
 	setBusy: (state: boolean) => void;
 	contract: InterfaceContract;
 	index: number;
 	remove: () => void;
 	updateBalance: (address: string) => void;
-}> = ({ celo, busy, setBusy, contract, index, remove, updateBalance }) => {
+}> = ({ conflux, busy, setBusy, contract, index, remove, updateBalance }) => {
 	const [enable, setEnable] = React.useState<boolean>(true);
 
 	function DrawMathods() {
@@ -174,7 +180,7 @@ const ContractCard: React.FunctionComponent<{
 					<Accordion.Collapse eventKey={`Methods_${id}`}>
 						<Card.Body className="py-1 px-2">
 							<DrawMethod
-								celo={celo}
+								conflux={conflux}
 								busy={busy}
 								setBusy={setBusy}
 								abi={abi}
@@ -203,7 +209,7 @@ const ContractCard: React.FunctionComponent<{
 						size="sm"
 						variant="link"
 						onClick={() => {
-							window.open(`${celo.getNetwork().blockscout}/address/${contract.address}`);
+							window.open(`https://confluxscan.io/address/${contract.address}`);
 						}}
 					>
 						<i className="fas fa-external-link-alt" />
@@ -226,7 +232,7 @@ const ContractCard: React.FunctionComponent<{
 };
 
 interface InterfaceSmartContractsProps {
-	celo: Celo;
+	conflux: Conflux;
 	busy: boolean;
 	setBusy: (state: boolean) => void;
 	contracts: InterfaceContract[];
@@ -234,7 +240,7 @@ interface InterfaceSmartContractsProps {
 }
 
 const SmartContracts: React.FunctionComponent<InterfaceSmartContractsProps> = ({
-	celo,
+	conflux,
 	busy,
 	setBusy,
 	contracts,
@@ -251,7 +257,7 @@ const SmartContracts: React.FunctionComponent<InterfaceSmartContractsProps> = ({
 	function DrawContracts() {
 		const items = contracts.map((data: InterfaceContract, index: number) => (
 			<ContractCard
-				celo={celo}
+				conflux={conflux}
 				busy={busy}
 				setBusy={setBusy}
 				contract={data}

@@ -1,9 +1,25 @@
 import React from 'react';
 import { Container, Form, InputGroup, Tooltip, Button, OverlayTrigger } from 'react-bootstrap';
-import { Celo, NETWORKS } from '@dexfair/celo-web-signer';
+import { Conflux } from 'js-conflux-sdk';
 import Compiler from './components/Compiler';
 import SmartContracts from './components/SmartContracts';
 import { InterfaceContract } from './components/Types';
+
+interface Network {
+	url: string;
+	networkId?: number;
+}
+
+const NETWORKS: { [key: string]: Network } = {
+	Mainnet: {
+		url: 'https://mainnet-rpc.conflux-chain.org.cn/v2',
+		networkId: 2,
+	},
+	Testnet: {
+		url: 'https://testnet-rpc.conflux-chain.org.cn/v2',
+		networkId: 1,
+	},
+};
 
 const App: React.FunctionComponent = () => {
 	const [account, setAccount] = React.useState<string>('');
@@ -11,7 +27,8 @@ const App: React.FunctionComponent = () => {
 	const [network, setNetwork] = React.useState<string>('Mainnet');
 	const [disabledNetSelect, setDisabledNetSelect] = React.useState<boolean>(true);
 	const [busy, setBusy] = React.useState<boolean>(false);
-	const [celo] = React.useState<Celo>(new Celo(NETWORKS.Mainnet));
+	const [conflux] = React.useState<Conflux>(new Conflux(NETWORKS.Mainnet));
+	const confluxPortal: any = (window as { [key: string]: any }).conflux;
 	const [atAddress, setAtAddress] = React.useState<string>('');
 	const [contracts, setContracts] = React.useState<InterfaceContract[]>([]);
 	const [selected, setSelected] = React.useState<InterfaceContract | null>(null);
@@ -22,48 +39,24 @@ const App: React.FunctionComponent = () => {
 	}, [account, network]);
 
 	async function connect() {
-		if (!celo.isConnected) {
-			setBusy(true);
-			const support = await celo.getSupport();
+		setBusy(true);
+		const accounts = await confluxPortal.enable();
+		setAccount(accounts[0]);
 
-			if (support.celo) {
-				const result = await celo.connectCelo(
-					(type: string, accounts: string[]) => {
-						setBalance('');
-						setAccount(accounts[0]);
-					},
-					(networkName: string) => {
-						setBalance('');
-						setNetwork(networkName);
-					}
-				);
-				if (result && (window as { [key: string]: any }).gtag) {
-					const { gtag } = window as { [key: string]: any };
-					gtag('event', 'login', {
-						method: 'Celo',
-					});
-				}
-			} else {
-				const result = await celo.connectMetaMask((type: string, accounts: string[]) => {
-					setAccount(accounts[0]);
-				});
-				if (result && (window as { [key: string]: any }).gtag) {
-					const { gtag } = window as { [key: string]: any };
-					gtag('event', 'login', {
-						method: 'MetaMask',
-					});
-				}
-				setDisabledNetSelect(false);
-			}
-
-			setBusy(false);
+		if (accounts && (window as { [key: string]: any }).gtag) {
+			const { gtag } = window as { [key: string]: any };
+			gtag('event', 'login', {
+				method: 'ConfluxPortal',
+			});
 		}
+		setDisabledNetSelect(false);
+		setBusy(false);
 	}
 
 	async function updateBalance(address: string) {
 		if (address !== '') {
-			const { CELO } = await celo.kit.getTotalBalance(address);
-			setBalance(celo.kit.web3.utils.fromWei(CELO.toString()));
+			const CFX = await conflux.getBalance(address);
+			setBalance(CFX.toString());
 		}
 	}
 
@@ -72,7 +65,6 @@ const App: React.FunctionComponent = () => {
 			setBusy(true);
 			setContracts([]);
 			const temp = e.target.value;
-			await celo.changeNetwork(NETWORKS[temp]);
 			setNetwork(temp);
 			setBusy(false);
 		}
@@ -94,12 +86,7 @@ const App: React.FunctionComponent = () => {
 				<Form.Text className="text-muted">
 					<small>NETWORK</small>
 				</Form.Text>
-				<Form.Control
-					as="select"
-					value={network}
-					onChange={changeNetwork}
-					disabled={!celo.isConnected || disabledNetSelect}
-				>
+				<Form.Control as="select" value={network} onChange={changeNetwork} disabled={disabledNetSelect}>
 					{items}
 				</Form.Control>
 			</Form.Group>
@@ -134,7 +121,7 @@ const App: React.FunctionComponent = () => {
 					</Form.Group>
 					<Form.Group>
 						<Form.Text className="text-muted">
-							<small>BALANCE (CELO)</small>
+							<small>BALANCE (CFX)</small>
 						</Form.Text>
 						<InputGroup>
 							<Form.Control type="text" placeholder="Account" value={balance} size="sm" readOnly />
@@ -144,7 +131,7 @@ const App: React.FunctionComponent = () => {
 				</Form>
 				<hr />
 				<Compiler
-					celo={celo}
+					conflux={conflux}
 					network={network}
 					gtag={(name: string) => {
 						const { gtag } = window as { [key: string]: any };
@@ -192,7 +179,13 @@ const App: React.FunctionComponent = () => {
 					</InputGroup.Append>
 				</InputGroup>
 				<hr />
-				<SmartContracts celo={celo} busy={busy} setBusy={setBusy} contracts={contracts} updateBalance={updateBalance} />
+				<SmartContracts
+					conflux={conflux}
+					busy={busy}
+					setBusy={setBusy}
+					contracts={contracts}
+					updateBalance={updateBalance}
+				/>
 			</Container>
 		</div>
 	);
