@@ -85,7 +85,6 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 							const accounts = await confluxPortal.enable();
 							if (abi.stateMutability === 'view' || abi.stateMutability === 'pure') {
 								try {
-									// ? await newContract.methods[abi.name](...parms).call({ from: accounts[0] })
 									const txReceipt = abi.name ? null : null;
 									if (typeof txReceipt === 'object') {
 										setSuccess(JSON.stringify(txReceipt, null, 4));
