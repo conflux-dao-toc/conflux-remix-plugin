@@ -9,7 +9,7 @@ The Conflux plugin for Ethereum's Remix IDE. It support for deploy and interacti
 1. Click RemixIDE Plugin Manager Icon and activate Conflux Plugin
 ![plugin manager](./plugin1.png)
 2. Click Conflux Plugin Icon
-![celo](./plugin2.png)
+![Conflux](./plugin2.png)
 3. Connect ConfluxPortal Wallet Account
 4. Select Network
 5. Compile your smart contract
