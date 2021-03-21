@@ -66,6 +66,8 @@ const App: React.FunctionComponent = () => {
 			setContracts([]);
 			const temp = e.target.value;
 			setNetwork(temp);
+			const results = await confluxPortal.enable();
+			setAccount(results[0]);
 			setBusy(false);
 		}
 	}
