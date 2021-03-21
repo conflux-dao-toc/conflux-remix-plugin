@@ -133,15 +133,12 @@ const Compiler: React.FunctionComponent<InterfaceProps> = ({
 			setAddress('');
 			try {
 				const newContract = conflux.Contract({
-						abi: contracts.data[contractName].abi,
-						bytecode: contracts.data[contractName].evm.bytecode,
-					});
+					abi: contracts.data[contractName].abi,
+					bytecode: contracts.data[contractName].evm.bytecode,
+				});
 				const accounts = await confluxPortal.enable();
 				const parms: string[] = getArguments(constructor, args);
-				const txReceipt = await newContract
-				    .constructor(parms)
-					.sendTransaction({ from: accounts[0] })
-					.executed();
+				const txReceipt = await newContract.constructor(parms).sendTransaction({ from: accounts[0] }).executed();
 				// console.log(txReceipt);
 				if (txReceipt.contractAddress) {
 					setAddress(txReceipt.contractAddress);
