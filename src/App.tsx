@@ -67,8 +67,12 @@ const App: React.FunctionComponent = () => {
 			setContracts([]);
 			const temp = e.target.value;
 			setNetwork(temp);
+			const status = await conflux.getStatus();
 			const results = await confluxPortal.enable();
 			setAccount(results[0]);
+			const CFX = await conflux.getBalance(results[0]);
+			const drip = new Drip(Number(CFX));
+			setBalance(drip.toCFX());
 			setBusy(false);
 		}
 	}
