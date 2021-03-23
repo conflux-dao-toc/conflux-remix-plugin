@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, Form, InputGroup, Tooltip, Button, OverlayTrigger } from 'react-bootstrap';
-import { Conflux } from 'js-conflux-sdk';
+import { Conflux, Drip } from 'js-conflux-sdk';
 import Compiler from './components/Compiler';
 import SmartContracts from './components/SmartContracts';
 import { InterfaceContract } from './components/Types';
@@ -24,10 +24,10 @@ const NETWORKS: { [key: string]: Network } = {
 const App: React.FunctionComponent = () => {
 	const [account, setAccount] = React.useState<string>('');
 	const [balance, setBalance] = React.useState<string>('');
-	const [network, setNetwork] = React.useState<string>('Mainnet');
+	const [network, setNetwork] = React.useState<string>('Testnet');
 	const [disabledNetSelect, setDisabledNetSelect] = React.useState<boolean>(true);
 	const [busy, setBusy] = React.useState<boolean>(false);
-	const [conflux] = React.useState<Conflux>(new Conflux(NETWORKS.Mainnet));
+	const [conflux] = React.useState<Conflux>(new Conflux(NETWORKS.Testnet));
 	const confluxPortal: any = (window as { [key: string]: any }).conflux;
 	const [atAddress, setAtAddress] = React.useState<string>('');
 	const [contracts, setContracts] = React.useState<InterfaceContract[]>([]);
@@ -56,7 +56,8 @@ const App: React.FunctionComponent = () => {
 	async function updateBalance(address: string) {
 		if (address !== '') {
 			const CFX = await conflux.getBalance(address);
-			setBalance(CFX.toString());
+			const drip = new Drip(Number(CFX));
+			setBalance(drip.toCFX());
 		}
 	}
 

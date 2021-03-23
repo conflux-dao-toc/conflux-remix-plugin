@@ -7088,10 +7088,10 @@ jest@26.6.0:
     import-local "^3.0.2"
     jest-cli "^26.6.0"
 
-js-conflux-sdk@^1.5.14:
-  version "1.5.14"
-  resolved "https://registry.yarnpkg.com/js-conflux-sdk/-/js-conflux-sdk-1.5.14.tgz#005929eeea70a2e1fa08f7500324b643c8c5c0e9"
-  integrity sha512-tWMKU3NLdxqWlB1b3adWul2w/mbAgiEJs552ax0bwRsQ0hxgx7gLgG52/krpZCqdlYjFA5Wnzlezjw9sc3VYPg==
+js-conflux-sdk@^1.5.15:
+  version "1.5.15"
+  resolved "https://registry.yarnpkg.com/js-conflux-sdk/-/js-conflux-sdk-1.5.15.tgz#af5063d79644ff2ba587106da0447f64fc7b4e4c"
+  integrity sha512-cX2DU/KmnPVinPUkQvmd7IjL2YPILJo2WE91OrIh0cONngwQKNUj3kvXfT8UvW0f2C1GQtMJEN3tSM4vRpEPYg==
   dependencies:
     "@babel/runtime" "^7.8.4"
     big.js "^5.2.2"
