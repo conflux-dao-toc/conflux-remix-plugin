@@ -133,8 +133,8 @@ const Compiler: React.FunctionComponent<InterfaceProps> = ({
 			setAddress('');
 			try {
 				const newContract = conflux.Contract({
-					abi: contracts.data[contractName].abi,
-					bytecode: contracts.data[contractName].evm.bytecode,
+					abi: JSON.parse(JSON.stringify(contracts.data[contractName].abi)),
+					bytecode: '0x'.concat(JSON.parse(JSON.stringify(contracts.data[contractName].evm.bytecode.object))),
 				});
 				const accounts = await confluxPortal.enable();
 				const parms: string[] = getArguments(constructor, args);
