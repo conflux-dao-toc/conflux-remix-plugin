@@ -139,7 +139,7 @@ const Compiler: React.FunctionComponent<InterfaceProps> = ({
 				const accounts = await confluxPortal.enable();
 				const parms: string[] = getArguments(constructor, args);
 				const txReceipt = await newContract.constructor(parms).sendTransaction({ from: accounts[0] }).executed();
-				// console.log(txReceipt);
+				console.log(txReceipt);
 				if (txReceipt.contractAddress) {
 					setAddress(txReceipt.contractAddress);
 					addNewContract({
