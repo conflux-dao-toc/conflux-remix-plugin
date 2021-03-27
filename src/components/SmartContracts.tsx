@@ -14,6 +14,7 @@ const confluxPortal: any = (window as { [key: string]: any }).conflux;
 
 interface InterfaceDrawMethodProps {
 	conflux: Conflux;
+	network: string;
 	busy: boolean;
 	setBusy: (state: boolean) => void;
 	abi: AbiItem;
@@ -26,7 +27,7 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 	const [success, setSuccess] = React.useState<string>('');
 	const [value, setValue] = React.useState<string>('');
 	const [args, setArgs] = React.useState<{ [key: string]: string }>({});
-	const { conflux, busy, /* setBusy, */ abi, address, updateBalance } = props;
+	const { conflux, busy, network, /* setBusy, */ abi, address, updateBalance } = props;
 
 	React.useEffect(() => {
 		const temp: { [key: string]: string } = {};
@@ -159,14 +160,23 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 
 const ContractCard: React.FunctionComponent<{
 	conflux: Conflux;
+	network: string;
 	busy: boolean;
 	setBusy: (state: boolean) => void;
 	contract: InterfaceContract;
 	index: number;
 	remove: () => void;
 	updateBalance: (address: string) => void;
-}> = ({ conflux, busy, setBusy, contract, index, remove, updateBalance }) => {
+}> = ({ conflux, network, busy, setBusy, contract, index, remove, updateBalance }) => {
 	const [enable, setEnable] = React.useState<boolean>(true);
+
+	function getCFXNetworkUrl(networkName: string) {
+		let cfxscanurl = 'https://confluxscan.io';
+		if (networkName === 'Testnet') {
+			cfxscanurl = 'https://testnet.confluxscan.io';
+		}
+		return cfxscanurl;
+	}
 
 	function DrawMathods() {
 		const list = contract.abi ? contract.abi : [];
@@ -180,6 +190,7 @@ const ContractCard: React.FunctionComponent<{
 						<Card.Body className="py-1 px-2">
 							<DrawMethod
 								conflux={conflux}
+								network={network}
 								busy={busy}
 								setBusy={setBusy}
 								abi={abi}
@@ -208,7 +219,7 @@ const ContractCard: React.FunctionComponent<{
 						size="sm"
 						variant="link"
 						onClick={() => {
-							window.open(`https://confluxscan.io/address/${contract.address}`);
+							window.open(`${getCFXNetworkUrl(network)}/address/${contract.address}`);
 						}}
 					>
 						<i className="fas fa-external-link-alt" />
@@ -232,6 +243,7 @@ const ContractCard: React.FunctionComponent<{
 
 interface InterfaceSmartContractsProps {
 	conflux: Conflux;
+	network: string;
 	busy: boolean;
 	setBusy: (state: boolean) => void;
 	contracts: InterfaceContract[];
@@ -240,6 +252,7 @@ interface InterfaceSmartContractsProps {
 
 const SmartContracts: React.FunctionComponent<InterfaceSmartContractsProps> = ({
 	conflux,
+	network,
 	busy,
 	setBusy,
 	contracts,
@@ -257,6 +270,7 @@ const SmartContracts: React.FunctionComponent<InterfaceSmartContractsProps> = ({
 		const items = contracts.map((data: InterfaceContract, index: number) => (
 			<ContractCard
 				conflux={conflux}
+				network={network}
 				busy={busy}
 				setBusy={setBusy}
 				contract={data}

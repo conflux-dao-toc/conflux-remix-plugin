@@ -188,6 +188,7 @@ const App: React.FunctionComponent = () => {
 				<hr />
 				<SmartContracts
 					conflux={conflux}
+					network={network}
 					busy={busy}
 					setBusy={setBusy}
 					contracts={contracts}
