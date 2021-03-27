@@ -12,6 +12,22 @@ import Method from './Method';
 
 const confluxPortal: any = (window as { [key: string]: any }).conflux;
 
+interface Network {
+	url: string;
+	networkId?: number;
+}
+
+const NETWORKS: { [key: string]: Network } = {
+	Mainnet: {
+		url: 'https://mainnet-rpc.conflux-chain.org.cn/v2',
+		networkId: 2,
+	},
+	Testnet: {
+		url: 'https://testnet-rpc.conflux-chain.org.cn/v2',
+		networkId: 1,
+	},
+};
+
 function getFunctions(abi: AbiItem[]): AbiItem[] {
 	const temp: AbiItem[] = [];
 	abi.forEach((element: AbiItem) => {
@@ -44,7 +60,6 @@ interface InterfaceProps {
 }
 
 const Compiler: React.FunctionComponent<InterfaceProps> = ({
-	conflux,
 	network,
 	gtag,
 	busy,
@@ -66,6 +81,7 @@ const Compiler: React.FunctionComponent<InterfaceProps> = ({
 	const [args, setArgs] = React.useState<{ [key: string]: string }>({});
 	const [address, setAddress] = React.useState<string>('');
 	const [error, setError] = React.useState<string>('');
+	const [conflux] = React.useState<Conflux>(new Conflux(NETWORKS[network]));
 
 	React.useEffect(() => {
 		async function init() {
@@ -91,6 +107,7 @@ const Compiler: React.FunctionComponent<InterfaceProps> = ({
 				console.log('Error from IDE : No such file or directory No file selected');
 			}
 			setClient(temp);
+			conflux.provider = confluxPortal;
 		}
 		setAddress('');
 		if (!initialised) {
@@ -98,7 +115,7 @@ const Compiler: React.FunctionComponent<InterfaceProps> = ({
 			init();
 		}
 		// eslint-disable-next-line
-  }, [network]);
+  }, [conflux, network]);
 
 	async function compile() {
 		setBusy(true);
@@ -140,11 +157,11 @@ const Compiler: React.FunctionComponent<InterfaceProps> = ({
 				const parms: string[] = getArguments(constructor, args);
 				const txReceipt = await newContract.constructor(parms).sendTransaction({ from: accounts[0] }).executed();
 				console.log(txReceipt);
-				if (txReceipt.contractAddress) {
-					setAddress(txReceipt.contractAddress);
+				if (txReceipt.contractCreated) {
+					setAddress(txReceipt.contractCreated);
 					addNewContract({
 						name: contractName,
-						address: txReceipt.contractAddress,
+						address: txReceipt.contractCreated,
 						abi: getFunctions(contracts.data[contractName].abi),
 					});
 				} else {
