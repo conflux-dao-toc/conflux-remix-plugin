@@ -79,14 +79,18 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 							abi.inputs?.forEach((item: AbiInput) => {
 								parms.push(args[item.name]);
 							});
+							conflux.provider = confluxPortal;
 							const newContract = conflux.Contract({
-								abi: [abi],
+								abi: JSON.parse(JSON.stringify([abi])),
 								address,
 							});
 							const accounts = await confluxPortal.enable();
+							console.log(newContract);
 							if (abi.stateMutability === 'view' || abi.stateMutability === 'pure') {
 								try {
 									const txReceipt = abi.name ? null : null;
+									// ? await newContract[`func(${abi.name})`](...parms).call({ from: accounts[0] })
+									// : null;
 									if (typeof txReceipt === 'object') {
 										setSuccess(JSON.stringify(txReceipt, null, 4));
 									} else {
@@ -104,7 +108,7 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 												from: accounts[0],
 												to: address,
 												data: '0x',
-												// data: newContract.methods[abi.name](...parms).encodeABI(),
+												// data: newContract[`func(${abi.name})`](...parms).encodeABI(),
 										  })
 										: null;
 									// console.log(txReceipt)
@@ -136,8 +140,7 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 										}
 									});
 									const newContract = conflux.Contract({ abi: [abi], address });
-									copy('0x');
-									// copy(newContract.methods[abi.name](...parms).encodeABI());
+									// copy(newContract[`func(${abi.name})`](...parms).encodeABI());
 								} catch (e) {
 									console.log(e.toString());
 								}
@@ -181,7 +184,7 @@ const ContractCard: React.FunctionComponent<{
 	function DrawMathods() {
 		const list = contract.abi ? contract.abi : [];
 		const items = list.map((abi: AbiItem, id: number) => (
-			<Accordion key={`Methods_A_${index.toString()}`}>
+			<Accordion key={`Methods_${index.toString()}_${id.toString()}`}>
 				<Card>
 					<Accordion.Toggle as={Card.Header} eventKey={`Methods_${id}`} className="p-1">
 						<small>{abi.name}</small>
