@@ -85,12 +85,13 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 								address,
 							});
 							const accounts = await confluxPortal.enable();
+							console.log(abi.name);
 							console.log(newContract);
 							if (abi.stateMutability === 'view' || abi.stateMutability === 'pure') {
 								try {
-									const txReceipt = abi.name ? null : null;
-									// ? await newContract[`func(${abi.name})`](...parms).call({ from: accounts[0] })
-									// : null;
+									const txReceipt = abi.name
+										? await newContract[abi.name!](...parms).call({ from: accounts[0] })
+										: null;
 									if (typeof txReceipt === 'object') {
 										setSuccess(JSON.stringify(txReceipt, null, 4));
 									} else {
