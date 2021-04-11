@@ -18,9 +18,16 @@ The Conflux plugin for Ethereum's Remix IDE. It support for deploy and interacti
 
 # Scripts
 
+Clone the github repository:
+```
+git clone https://github.com/conflux-dao-toc/conflux-remix-plugin.git
+```
 In the project directory, you can run:
 
-## `yarn start`
+```
+cd conflux-remix-plugin
+yarn start
+```
 
 Runs the app in the development mode.<br />
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
