@@ -4,6 +4,7 @@
 
 The Conflux plugin for Ethereum's Remix IDE. It support for deploy and interacting on a Conflux network.
 
+live site: https://conflux.xuanwugate.com
 
 # Getting Started
 1. Click RemixIDE Plugin Manager Icon and activate Conflux Plugin
