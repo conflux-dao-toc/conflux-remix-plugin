@@ -10,7 +10,7 @@ live site: https://conflux.xuanwugate.com
 
 # Getting Started
 1. Click RemixIDE Plugin Manager Icon and activate Conflux Plugin
-![plugin manager](./plugin-install-step.png)
+![plugin manager](./plugin1.png)
 2. Click Conflux Plugin Icon
 ![Conflux](./plugin2.png)
 3. Connect ConfluxPortal Wallet Account
