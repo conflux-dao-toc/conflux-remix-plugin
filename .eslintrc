@@ -23,8 +23,7 @@
     "react/prop-types": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "react/jsx-filename-extension": [2, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
-    "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": ["error"],
+    "@typescript-eslint/no-unused-vars": "off",
     "no-console": "off"
   }
 }
