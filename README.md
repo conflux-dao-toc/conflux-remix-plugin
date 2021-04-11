@@ -6,9 +6,11 @@ The Conflux plugin for Ethereum's Remix IDE. It support for deploy and interacti
 
 live site: https://conflux.xuanwugate.com
 
+(CN 001)[使用Remix玩转Conflux上的智能合约](./conflux-guide.md)
+
 # Getting Started
 1. Click RemixIDE Plugin Manager Icon and activate Conflux Plugin
-![plugin manager](./plugin1.png)
+![plugin manager](./plugin-install-step.png)
 2. Click Conflux Plugin Icon
 ![Conflux](./plugin2.png)
 3. Connect ConfluxPortal Wallet Account
