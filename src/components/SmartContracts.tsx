@@ -27,7 +27,7 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 	const [success, setSuccess] = React.useState<string>('');
 	const [value, setValue] = React.useState<string>('');
 	const [args, setArgs] = React.useState<{ [key: string]: string }>({});
-	const { conflux, busy, network, /* setBusy, */ abi, address, updateBalance } = props;
+	const { conflux, busy, network, setBusy, abi, address, updateBalance } = props;
 
 	React.useEffect(() => {
 		const temp: { [key: string]: string } = {};
@@ -74,7 +74,7 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 						size="sm"
 						disabled={busy || !conflux}
 						onClick={async () => {
-							// setBusy(true)
+							setBusy(true);
 							const parms: string[] = [];
 							abi.inputs?.forEach((item: AbiInput) => {
 								parms.push(args[item.name]);
@@ -85,12 +85,12 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 								address,
 							});
 							const accounts = await confluxPortal.enable();
-							console.log(abi.name);
-							console.log(newContract);
+							// console.log(abi.name);
+							// console.log(newContract);
 							if (abi.stateMutability === 'view' || abi.stateMutability === 'pure') {
 								try {
 									const txReceipt = abi.name
-										? await newContract[abi.name!](...parms).call({ from: accounts[0] })
+										? await newContract[`${abi.name}`](...parms).call({ from: accounts[0] })
 										: null;
 									if (typeof txReceipt === 'object') {
 										setSuccess(JSON.stringify(txReceipt, null, 4));
@@ -108,8 +108,7 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 										? await conflux.sendTransaction({
 												from: accounts[0],
 												to: address,
-												data: '0x',
-												// data: newContract[`func(${abi.name})`](...parms).encodeABI(),
+												data: newContract[`${abi.name}`](...parms).data,
 										  })
 										: null;
 									// console.log(txReceipt)
@@ -122,7 +121,7 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 									setError(e.message ? e.message : e.toString());
 								}
 							}
-							// setBusy(false)
+							setBusy(false);
 						}}
 					>
 						<small>{abi.stateMutability === 'view' || abi.stateMutability === 'pure' ? 'call' : 'transact'}</small>
@@ -141,7 +140,7 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 										}
 									});
 									const newContract = conflux.Contract({ abi: [abi], address });
-									// copy(newContract[`func(${abi.name})`](...parms).encodeABI());
+									copy(newContract[`${abi.name}`](...parms).data);
 								} catch (e) {
 									console.log(e.toString());
 								}
