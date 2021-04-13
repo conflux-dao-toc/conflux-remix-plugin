@@ -1,7 +1,7 @@
 import React from 'react';
 import { Alert, Button, Card, Form, InputGroup } from 'react-bootstrap';
 import copy from 'copy-to-clipboard';
-import { AbiInput, AbiItem } from 'web3-utils';
+import { AbiInput, AbiItem, asciiToHex } from 'web3-utils';
 import type { Api } from '@remixproject/plugin-utils';
 import { Client } from '@remixproject/plugin';
 import { IRemixApi } from '@remixproject/plugin-api';
@@ -38,11 +38,15 @@ function getFunctions(abi: AbiItem[]): AbiItem[] {
 	return temp;
 }
 
-function getArguments(abi: AbiItem | null, args: { [key: string]: string }) {
-	const temp: string[] = [];
+function getArguments(abi: AbiItem | null, args: { [key: string]: any }) {
+	const temp: any[] = [];
 	if (abi) {
 		abi.inputs?.forEach((item: AbiInput) => {
-			temp.push(args[item.name]);
+			if (item.type === 'bytes32[]') {
+				temp.push(asciiToHex(args[item.name]).padEnd(32, '0'));
+			} else {
+				temp.push(args[item.name]);
+			}
 		});
 	}
 	return temp;
@@ -154,12 +158,17 @@ const Compiler: React.FunctionComponent<InterfaceProps> = ({
 					bytecode: '0x'.concat(JSON.parse(JSON.stringify(contracts.data[contractName].evm.bytecode.object))),
 				});
 				const accounts = await confluxPortal.enable();
-				const parms: string[] = getArguments(constructor, args);
-				const txReceipt = await newContract
-					.constructor(...parms)
-					.sendTransaction({ from: accounts[0] })
-					.executed();
-				console.log(txReceipt);
+				const parms: any[] = getArguments(constructor, args);
+				let txReceipt: any = '';
+				if (parms.length > 0) {
+					txReceipt = await newContract.constructor(parms).sendTransaction({ from: accounts[0] }).executed();
+				} else {
+					txReceipt = await newContract
+						.constructor(...parms)
+						.sendTransaction({ from: accounts[0] })
+						.executed();
+				}
+				// console.log(txReceipt);
 				if (txReceipt.contractCreated) {
 					setAddress(txReceipt.contractCreated);
 					addNewContract({
