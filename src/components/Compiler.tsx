@@ -163,10 +163,7 @@ const Compiler: React.FunctionComponent<InterfaceProps> = ({
 				if (parms.length > 0) {
 					txReceipt = await newContract.constructor(parms).sendTransaction({ from: accounts[0] }).executed();
 				} else {
-					txReceipt = await newContract
-						.constructor(...parms)
-						.sendTransaction({ from: accounts[0] })
-						.executed();
+					txReceipt = await newContract.constructor().sendTransaction({ from: accounts[0] }).executed();
 				}
 				// console.log(txReceipt);
 				if (txReceipt.contractCreated) {
