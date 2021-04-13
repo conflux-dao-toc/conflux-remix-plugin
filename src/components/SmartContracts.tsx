@@ -75,7 +75,7 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 						disabled={busy || !conflux}
 						onClick={async () => {
 							setBusy(true);
-							const parms: string[] = [];
+							const parms: any[] = [];
 							abi.inputs?.forEach((item: AbiInput) => {
 								parms.push(args[item.name]);
 							});
@@ -87,11 +87,14 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 							const accounts = await confluxPortal.enable();
 							// console.log(abi.name);
 							// console.log(newContract);
+							let txReceipt: any;
 							if (abi.stateMutability === 'view' || abi.stateMutability === 'pure') {
 								try {
-									const txReceipt = abi.name
-										? await newContract[`${abi.name}`](...parms).call({ from: accounts[0] })
-										: null;
+									if (parms.length > 0) {
+										txReceipt = abi.name ? await newContract[`${abi.name}`](parms).call({ from: accounts[0] }) : null;
+									} else {
+										txReceipt = abi.name ? await newContract[`${abi.name}`]().call({ from: accounts[0] }) : null;
+									}
 									if (typeof txReceipt === 'object') {
 										setSuccess(JSON.stringify(txReceipt, null, 4));
 									} else {
@@ -104,13 +107,23 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 								}
 							} else {
 								try {
-									const txReceipt = abi.name
-										? await conflux.sendTransaction({
-												from: accounts[0],
-												to: address,
-												data: newContract[`${abi.name}`](...parms).data,
-										  })
-										: null;
+									if (parms.length > 0) {
+										txReceipt = abi.name
+											? await conflux.sendTransaction({
+													from: accounts[0],
+													to: address,
+													data: newContract[`${abi.name}`](parms).data,
+											  })
+											: null;
+									} else {
+										txReceipt = abi.name
+											? await conflux.sendTransaction({
+													from: accounts[0],
+													to: address,
+													data: newContract[`${abi.name}`]().data,
+											  })
+											: null;
+									}
 									// console.log(txReceipt)
 									setError('');
 									setSuccess(JSON.stringify(txReceipt, null, 2));
