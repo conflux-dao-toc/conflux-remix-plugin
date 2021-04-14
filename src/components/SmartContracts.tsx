@@ -90,8 +90,10 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 							let txReceipt: any;
 							if (abi.stateMutability === 'view' || abi.stateMutability === 'pure') {
 								try {
-									if (parms.length > 0) {
+									if (parms[0] !== '' && Array.isArray(parms[0])) {
 										txReceipt = abi.name ? await newContract[`${abi.name}`](parms).call({ from: accounts[0] }) : null;
+									} else if (parms[0] !== '' && !Array.isArray(parms[0])) {
+										txReceipt = abi.name ? await newContract[`${abi.name}`](...parms).call({ from: accounts[0] }) : null;
 									} else {
 										txReceipt = abi.name ? await newContract[`${abi.name}`]().call({ from: accounts[0] }) : null;
 									}
@@ -107,12 +109,20 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 								}
 							} else {
 								try {
-									if (parms.length > 0) {
+									if (parms[0] !== '' && Array.isArray(parms[0])) {
 										txReceipt = abi.name
 											? await conflux.sendTransaction({
 													from: accounts[0],
 													to: address,
 													data: newContract[`${abi.name}`](parms).data,
+											  })
+											: null;
+									} else if (parms[0] !== '' && !Array.isArray(parms[0])) {
+										txReceipt = abi.name
+											? await conflux.sendTransaction({
+													from: accounts[0],
+													to: address,
+													data: newContract[`${abi.name}`](...parms).data,
 											  })
 											: null;
 									} else {
@@ -153,8 +163,10 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 										}
 									});
 									const newContract = conflux.Contract({ abi: [abi], address });
-									if (parms.length > 0) {
+									if (parms[0] !== '' && Array.isArray(parms[0])) {
 										copy(newContract[`${abi.name}`](parms).data);
+									} else if (parms[0] !== '' && !Array.isArray(parms[0])) {
+										copy(newContract[`${abi.name}`](...parms).data);
 									} else {
 										copy(newContract[`${abi.name}`]().data);
 									}

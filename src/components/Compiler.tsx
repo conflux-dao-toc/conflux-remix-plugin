@@ -160,8 +160,13 @@ const Compiler: React.FunctionComponent<InterfaceProps> = ({
 				const accounts = await confluxPortal.send('cfx_requestAccounts');
 				const parms: any[] = getArguments(constructor, args);
 				let txReceipt: any = '';
-				if (parms.length > 0) {
+				if (parms[0] !== '' && Array.isArray(parms[0])) {
 					txReceipt = await newContract.constructor(parms).sendTransaction({ from: accounts[0] }).executed();
+				} else if (parms[0] !== '' && !Array.isArray(parms[0])) {
+					txReceipt = await newContract
+						.constructor(...parms)
+						.sendTransaction({ from: accounts[0] })
+						.executed();
 				} else {
 					txReceipt = await newContract.constructor().sendTransaction({ from: accounts[0] }).executed();
 				}
