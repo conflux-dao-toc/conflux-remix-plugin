@@ -13,7 +13,7 @@ interface Network {
 const NETWORKS: { [key: string]: Network } = {
 	Mainnet: {
 		url: 'https://mainnet-rpc.conflux-chain.org.cn/v2',
-		networkId: 2,
+		networkId: 1029,
 	},
 	Testnet: {
 		url: 'https://testnet-rpc.conflux-chain.org.cn/v2',
@@ -40,8 +40,8 @@ const App: React.FunctionComponent = () => {
 
 	async function connect() {
 		setBusy(true);
-		const accounts = await confluxPortal.enable();
-		setAccount(accounts[0]);
+		const accounts = await confluxPortal.send('cfx_requestAccounts');
+		setAccount(accounts[0].toString());
 
 		if (accounts && (window as { [key: string]: any }).gtag) {
 			const { gtag } = window as { [key: string]: any };
@@ -50,6 +50,14 @@ const App: React.FunctionComponent = () => {
 			});
 		}
 		setDisabledNetSelect(false);
+		// add chainChanged event for conflux
+		confluxPortal.on('chainChanged', async function (chainId: number) {
+			// Time to make sure your any calls are directed to the correct chain!
+			setContracts([]);
+			const reqAccounts = await confluxPortal.send('cfx_requestAccounts');
+			setAccount(reqAccounts[0].toString());
+			updateBalance(reqAccounts[0].toString());
+		});
 		setBusy(false);
 	}
 
@@ -58,46 +66,13 @@ const App: React.FunctionComponent = () => {
 			const CFX = await conflux.getBalance(address);
 			const drip = new Drip(Number(CFX));
 			setBalance(drip.toCFX());
-		}
-	}
-
-	async function changeNetwork(e: React.ChangeEvent<HTMLInputElement>) {
-		if (!disabledNetSelect) {
-			setBusy(true);
-			setContracts([]);
-			const temp = e.target.value;
-			setNetwork(temp);
-			const status = await conflux.getStatus();
-			const results = await confluxPortal.enable();
-			setAccount(results[0]);
-			const CFX = await conflux.getBalance(results[0]);
-			const drip = new Drip(Number(CFX));
-			setBalance(drip.toCFX());
-			setBusy(false);
+		} else {
+			setBalance('0');
 		}
 	}
 
 	function addNewContract(contract: InterfaceContract) {
 		setContracts(contracts.concat([contract]));
-	}
-
-	function Networks() {
-		const list = NETWORKS;
-		const items = Object.keys(list).map((key) => (
-			<option key={key} value={key}>
-				{key}
-			</option>
-		));
-		return (
-			<Form.Group>
-				<Form.Text className="text-muted">
-					<small>NETWORK</small>
-				</Form.Text>
-				<Form.Control as="select" value={network} onChange={changeNetwork} disabled={disabledNetSelect}>
-					{items}
-				</Form.Control>
-			</Form.Group>
-		);
 	}
 
 	return (
@@ -134,7 +109,6 @@ const App: React.FunctionComponent = () => {
 							<Form.Control type="text" placeholder="Account" value={balance} size="sm" readOnly />
 						</InputGroup>
 					</Form.Group>
-					<Networks />
 				</Form>
 				<hr />
 				<Compiler

@@ -84,7 +84,7 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 								abi: JSON.parse(JSON.stringify([abi])),
 								address,
 							});
-							const accounts = await confluxPortal.enable();
+							const accounts = await confluxPortal.send('cfx_requestAccounts');
 							// console.log(abi.name);
 							// console.log(newContract);
 							let txReceipt: any;
@@ -146,16 +146,21 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 						onClick={() => {
 							if (abi.name) {
 								try {
-									const parms: string[] = [];
+									const parms: any[] = [];
 									abi.inputs?.forEach((item: AbiInput) => {
 										if (args[item.name]) {
 											parms.push(args[item.name]);
 										}
 									});
 									const newContract = conflux.Contract({ abi: [abi], address });
-									copy(newContract[`${abi.name}`](...parms).data);
+									if (parms.length > 0) {
+										copy(newContract[`${abi.name}`](parms).data);
+									} else {
+										copy(newContract[`${abi.name}`]().data);
+									}
 								} catch (e) {
-									console.log(e.toString());
+									// console.log(e.toString());
+									setError(e.message ? e.message : e.toString());
 								}
 							}
 						}}

@@ -20,7 +20,7 @@ interface Network {
 const NETWORKS: { [key: string]: Network } = {
 	Mainnet: {
 		url: 'https://mainnet-rpc.conflux-chain.org.cn/v2',
-		networkId: 2,
+		networkId: 1029,
 	},
 	Testnet: {
 		url: 'https://testnet-rpc.conflux-chain.org.cn/v2',
@@ -157,7 +157,7 @@ const Compiler: React.FunctionComponent<InterfaceProps> = ({
 					abi: JSON.parse(JSON.stringify(contracts.data[contractName].abi)),
 					bytecode: '0x'.concat(JSON.parse(JSON.stringify(contracts.data[contractName].evm.bytecode.object))),
 				});
-				const accounts = await confluxPortal.enable();
+				const accounts = await confluxPortal.send('cfx_requestAccounts');
 				const parms: any[] = getArguments(constructor, args);
 				let txReceipt: any = '';
 				if (parms.length > 0) {
