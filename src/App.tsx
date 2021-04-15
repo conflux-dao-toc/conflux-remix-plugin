@@ -51,7 +51,7 @@ const App: React.FunctionComponent = () => {
 		}
 		setDisabledNetSelect(false);
 		// add chainChanged event for conflux
-		confluxPortal.on('chainChanged', async function (chainId: number) {
+		confluxPortal.on('chainChanged', async function chainChanged(chainId: number) {
 			// Time to make sure your any calls are directed to the correct chain!
 			setContracts([]);
 			const reqAccounts = await confluxPortal.send('cfx_requestAccounts');
