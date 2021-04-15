@@ -93,7 +93,9 @@ const DrawMethod: React.FunctionComponent<InterfaceDrawMethodProps> = (props) =>
 									if (parms[0] !== '' && Array.isArray(parms[0])) {
 										txReceipt = abi.name ? await newContract[`${abi.name}`](parms).call({ from: accounts[0] }) : null;
 									} else if (parms[0] !== '' && !Array.isArray(parms[0])) {
-										txReceipt = abi.name ? await newContract[`${abi.name}`](...parms).call({ from: accounts[0] }) : null;
+										txReceipt = abi.name
+											? await newContract[`${abi.name}`](...parms).call({ from: accounts[0] })
+											: null;
 									} else {
 										txReceipt = abi.name ? await newContract[`${abi.name}`]().call({ from: accounts[0] }) : null;
 									}
