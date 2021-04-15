@@ -43,7 +43,7 @@ function getArguments(abi: AbiItem | null, args: { [key: string]: any }) {
 	if (abi) {
 		abi.inputs?.forEach((item: AbiInput) => {
 			if (item.type === 'bytes32[]') {
-				temp.push(asciiToHex(args[item.name]).padEnd(32, '0'));
+				temp.push([asciiToHex(args[item.name]).padEnd(32, '0')]);
 			} else {
 				temp.push(args[item.name]);
 			}
@@ -161,7 +161,7 @@ const Compiler: React.FunctionComponent<InterfaceProps> = ({
 				const parms: any[] = getArguments(constructor, args);
 				let txReceipt: any = '';
 				if (parms[0] !== '' && Array.isArray(parms[0])) {
-					txReceipt = await newContract.constructor(parms).sendTransaction({ from: accounts[0] }).executed();
+					txReceipt = await newContract.constructor(parms[0]).sendTransaction({ from: accounts[0] }).executed();
 				} else if (parms[0] !== '' && !Array.isArray(parms[0])) {
 					txReceipt = await newContract
 						.constructor(...parms)
